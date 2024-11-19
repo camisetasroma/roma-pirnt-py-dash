@@ -21,7 +21,7 @@ def get_data(initial_date, final_fate):
         user=user,
         password=password,
         port=port,
-        sslmode = "require"
+        sslmode = "disable" if os.getenv("ENV") == "PROD" else "require"
     )
 
     # Define your SQL query
