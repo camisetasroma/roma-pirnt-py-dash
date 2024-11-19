@@ -14,7 +14,7 @@ password = os.getenv("DB_PASS")
 port = os.getenv("DB_PORT")
 
 @st.cache_data
-def get_data(initial_date, final_fate):
+def get_data_from_db(initial_date, final_fate):
     conn = psycopg2.connect(
         host=host,
         dbname=dbname,
@@ -45,6 +45,7 @@ def get_data(initial_date, final_fate):
             AND o.status NOT IN ('C', 'O')
             AND o.order_date BETWEEN '{initial_date}' AND '{final_fate}'
             AND item_sku LIKE 'CAM-%-%-%-%-%'
+            AND unit_value > 2 --Isso vai dar merda
         ORDER BY erp_order_number
     )
     GROUP BY item_sku;"""
@@ -53,4 +54,3 @@ def get_data(initial_date, final_fate):
     df = pd.read_sql_query(query, conn)
     conn.close()
     return df
-
