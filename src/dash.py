@@ -1,8 +1,25 @@
 import pandas as pd
 import streamlit as st
-from dao import get_data_from_db
+from dao import get_data
 from pandas_utils import load_produtos_data, load_artistas_data, prepare_data, aggregate_data
 from config import MIN_DATE
+
+# Carregar os dados
+produtos_df = load_produtos_data()
+artistas_df = load_artistas_data()
+
+def get_table(artista_selecionado, start_date, end_date):
+
+    artistas = artistas_df["baseSku"].to_list()
+
+    if artista_selecionado != "Todos":
+        artistas = artistas_df[artistas_df["nameArtista"].isin(artista_selecionado)]["baseSku"].tolist()
+    
+    relatorio_df = get_data(artistas, start_date, end_date)
+    # Preparar os dados
+    merged_df2 = prepare_data(relatorio_df, artistas_df, produtos_df)
+    # Agregar os dados
+    return aggregate_data(merged_df2)
 
 def render_dash():
     # Configuração do Streamlit
@@ -20,26 +37,16 @@ def render_dash():
         min_value=MIN_DATE
     )
 
-    # Carregar os dados
-    produtos_df = load_produtos_data()
-    artistas_df = load_artistas_data()
-    relatorio_df = get_data_from_db(start_date, end_date)
-
-    # Preparar os dados
-    merged_df2 = prepare_data(relatorio_df, artistas_df, produtos_df)
-
-    # Agregar os dados
-    tabela_aggregada = aggregate_data(merged_df2)
-
     # Filtro de artista
-    artista_selecionado = st.sidebar.selectbox("Selecione o Artista", ['Todos'] + artistas_df['name_artista'].unique().tolist())
+    artista_selecionado = st.sidebar.selectbox("Selecione o Artista", ['Todos'] + artistas_df['nameArtista'].unique().tolist())
 
     titulo = "Todos"
+    
     if artista_selecionado != 'Todos':
-        tabela_filtrada = tabela_aggregada[tabela_aggregada['name_artista'] == artista_selecionado]
+        tabela_filtrada = get_table([artista_selecionado], start_date, end_date)
         titulo = artista_selecionado
     else:
-        tabela_filtrada = tabela_aggregada
+        tabela_filtrada = get_table(artista_selecionado, start_date, end_date)
 
     # Exibir dados no Streamlit
     tabela_display = tabela_filtrada.drop(columns=['Lucro Por Modelo'])
