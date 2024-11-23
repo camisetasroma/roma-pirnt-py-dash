@@ -3,6 +3,13 @@ import streamlit as st
 from dao import get_data
 from pandas_utils import load_produtos_data, load_artistas_data, prepare_data, aggregate_data
 from config import MIN_DATE
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+env_user = os.getenv("ENV_USER")
+env_password = os.getenv("ENV_PASS")
 
 # Carregar os dados
 produtos_df = load_produtos_data()
@@ -98,7 +105,7 @@ def login():
     # Checando se o login foi clicado
     if login_button:
         # Verificar as credenciais (Exemplo simples, substitua com suas credenciais reais)
-        if username == "teste" and password == "teste":
+        if username == env_user and password == env_password:
             st.success("Login realizado com sucesso!")
             st.session_state.logged_in = True
             st.rerun()
