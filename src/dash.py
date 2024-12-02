@@ -1,7 +1,6 @@
 import pandas as pd
 import streamlit as st
-from dao import get_data
-from pandas_utils import load_produtos_data, load_artistas_data, prepare_data, aggregate_data
+from pandas_utils import load_produtos_data, load_artistas_data, prepare_data, aggregate_data, get_data
 from config import MIN_DATE
 import os
 from dotenv import load_dotenv
@@ -25,6 +24,7 @@ def get_table(artista_selecionado, start_date, end_date):
     relatorio_df = get_data(artistas, start_date, end_date)
     # Preparar os dados
     merged_df2 = prepare_data(relatorio_df, artistas_df, produtos_df)
+
     # Agregar os dados
     return aggregate_data(merged_df2)
 
